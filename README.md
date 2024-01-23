@@ -91,6 +91,48 @@ the VM will act as a repository for the company's database, simulating a secure 
 - Randomly go through tables, displaying the top 1000 entries and compare to source database for discrepencies
 
 
+##Data Backup and Restore
+
+###Task 1: Backup onpremise database
+- Find the onpremises database in SSMS
+- Right-click, press 'Tasks' then 'Backup'
+- Follow subsequent instuctions
+  - Choose destination to save backup file
+  - Select desired backup type ('Full' in this instance)
+  - Click 'OK' to initiate
+
+###Task 2: Upload backup to Blob storage
+- Open Azure portal and navigate to Azure storage accounts
+- CLick on 'Upload' then drag and drop the backup file
+- Set the container to which it will be saved
+- Wait until upload is completed
+
+###Task 3: Restore Database in Development Environemnt 
+- Create a new VM with the same environment as the previously made one (Follow Task 1 of Setting up the Production Environment)
+  - The development Environment is a controlled and isolated area where the database and system can be worked upon and stress-tested without altering the production environment
+- Connect to the new Development VM
+- Download requisite programs
+  - SQL Server, SSMS and Azure Data Studio
+- Downoad the backup file stored in the Azure Blob
+- Move it to the backup folder located at `C:\Program Files\Microsoft SQL Server\MSSQL16.MSSQLSERVER\MSSQL\Backup\`
+- Restore the database
+  - Follow steps described in Task 4 of Setting up the Production Environment
+ 
+###Task 4: Automate Backups 
+- Create Server Credentials
+  - In SSMS right click server name, 'New Query'
+  - Execute following T-SQL command
+    - CREATE CREDENTIAL [YourCredentialName]
+    
+      WITH IDENTITY = '[Your Azure Storage Account Name]',
+
+      SECRET = 'Access Key';
+      - Replace parts in [] with own info
+      - 'Access Key' can be found in the 'Access Keys' tab under 'Security + Networking' in the associated Azure Storage account
+- Create management task
+  - Open 'Management' node, right click 'Maintenenance Plans', select 'Maintenance Plan Wizard'
+  - Follow wizard instructions, setting the back up schedule to weekly and the type to FUll
+  - Select database to be backed-up and select location  
 
 
 

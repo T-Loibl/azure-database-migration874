@@ -135,4 +135,27 @@ the VM will act as a repository for the company's database, simulating a secure 
   - Select database to be backed-up and select location  
 
 
+##Disaster Recovery Simulation
+
+###Task 1: Mimic Data Loss in Production Environment 
+- Connect to the Production VM
+- Ensure Azure Data Studio is connected to production database
+- Right click production database, click 'New Query'
+- Write T-SQL query that will simulate deletion and corruption:
+  - Deletion
+    - Delete top 100 entries from 'Person.Person'
+  - COrruption
+    - In 'Purchasing.Vendor' change the top 100 results for the 'BusinessEntityID' column to NULL
+- Verify intentional data loss by querying tables in question, which should return 100 fewer results in 'Person.Person' while the top 100 entries in 'BusinessEntityID' for 'Purchasing.Vendor' should be NULL values
+
+###Task 2: Restore Database 
+- Find and select the affected database in the Azure SQL Database dashboard through the Azure portal
+- Select the 'Restore' option
+- In the subsequent window:
+  - Select the restore point
+    - This will be a point in time before the Data Loss/Corruption happened
+- Once completed check the database to ensure the data loss and corruption have been corrected
+  - In this case the top 100 entries for 'Person.Person' should have returned and the top 100 entries in 'BusinessEntityID' for 'Purchasing.Vendor' should no longer be NULL values
+- Once restored delete the corrupted database as it is no longer needed
+
 

@@ -159,3 +159,52 @@ the VM will act as a repository for the company's database, simulating a secure 
 - Once restored delete the corrupted database as it is no longer needed
 
 
+##Geo-Replication and Failover
+
+###Task 1: Setup Geo-Replication
+- Find and select the target database in the Azure portal
+- In the side menu find the 'Replicas' tab under 'Data management'
+- Click 'create new' at the top of the directory
+- In the subsequent menu:
+  - Create a new server, which must be located in a geographically distinct region from the primary database server
+  - In this case the primary server is in UK South, and the Geo-Replica is in East US
+  - Review and Create
+ 
+###Task 2: Failover and Failback
+- Create Failover group
+  - Find SQL Server for primary database
+  - Under 'Data management' tab select 'Failover groups' then 'Add group'
+  - On next page:
+    - Enter name for group
+    - Select the secondary server for the 'server' option
+    - Create
+- Select 'failover group' option within either primary or secondary server
+- Select the failover group
+- Click the 'Failover' option in top menu bar to initiate a planned failover from the primary to the secondary server
+
+
+
+##Microsoft Entra Directory Integration
+
+###Task 1: Configure Entra ID 
+- Find SQL server that hosts primaru database in Azure portal
+- Find 'security' tab, click 'Microsoft Entra'
+- Click 'Set admin', select 'user', select your user
+  - This will grant privilaged permissions to that user within the environment
+- Remember to click 'save' on top menu to save changes
+
+###Task 2: Create DB Reader User
+- Go to Microsoft Entra ID page via the Azure portal
+- Create new users by going to 'Add' > 'users' > 'create new user'
+- Fill in the details
+  - Select descriptive names, in this instance creating a DB Reader user, so something along lines of db_reader_{name}
+  - Create password, can use the auto-generated one
+- Connect to primary database in Azure Data Studio using the Microsoft Entra ID
+- Open query to assign the db_datareader role to the user just created
+  - This will provide read_only privilages to the user
+- USe the following SQL query syntax
+  - CREATE USER [db_reader_name@domainname.com] FROM EXTERNAL PROVIDER;
+
+    ALTER ROLE db_datareader ADD MEMBER [db_reader_name@domainname.com]
+- Reconnect to primary database and attempt to make changes
+  - Should be unable to edit database due to altered privilages

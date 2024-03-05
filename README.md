@@ -1,14 +1,14 @@
-#Azure Database Migration Project 
+# Azure Database Migration Project 
 
-##Overview
+## Overview
 
 This README provides detailed instructions for setting up a Windows Virtual Machine (VM) in Azure to serve as the cornerstone of your production environment. 
 The VM will emulate the functions of a Windows server, replicating the operations of an on-premise system within a company. Throughout the project, 
 the VM will act as a repository for the company's database, simulating a secure and dedicated data storage solution.
 
-##Setting up the Production Environment
+## Setting up the Production Environment
 
-###Task 1: VM Provisioning
+### Task 1: VM Provisioning
 - Navigate to the Azure Portal and select "Virtual machines" from the left-hand menu.
 - Click on "Create" to create a new VM.
 - Choose the appropriate settings for your VM, including OS, size, and authentication.
@@ -19,19 +19,19 @@ the VM will act as a repository for the company's database, simulating a secure 
   - Inbound Port Rules set to 'allow selected ports' and 'RDP (3389)
 - Review and Create
 
-###Task 2: Connect Windows VM
+### Task 2: Connect Windows VM
 - Install MIcrosoft Remote Desktop
 - Download RDP file from Azure
 - Open RDP in MIcrosoft Remote Desktop
 - Allow VM to initialise
 
-###Task 3: Install SQL Server and SSMS (SQL Server Management Studio)
+### Task 3: Install SQL Server and SSMS (SQL Server Management Studio)
 - Once connected to the VM, download and install Microsoft SQL Server Developer version on the VM using the basic option
 - Launch the Installation Wizard
 - Once complete, select prompt to install SSMS and Azure Data Studio
 - Install
 
-###Task 4: Create Production Database
+### Task 4: Create Production Database
 - Download the AdventureWorks2022.bak file
 - Move to `C:\Program Files\Microsoft SQL Server\MSSQL16.MSSQLSERVER\MSSQL\Backup\`
 - Open SSMS and connect to the SQL Server instance installed previously
@@ -41,22 +41,22 @@ the VM will act as a repository for the company's database, simulating a secure 
 - CLick 'OK', allow restore process, review and 'OK'
 
 
-##Migrating local data to Azure SQL Database
+## Migrating local data to Azure SQL Database
 
-###Task 1: Create target database
+### Task 1: Create target database
 - Create Azure SQL Database inside previously created Resource Group
 - Follow prompts, including the creation of Server for the database within the Resource group
   - Ensure 'SQL Server Authenification' selected for security method
   - Configure 'Compute and Storage', select appropriate storage tier ('basic' in this instance)
 - Once created alter firewall rules to allow the IP address of the previously created VM
 
-###Task 2: Migration Preparation 
+### Task 2: Migration Preparation 
 - Open Azure Data Studio on VM
 - In 'Extensions' menu search for and install the necissary extensions:
   - 'SQL Server Schema Compare' and 'Azure SQL Migration'
 - Connect Azure Data Studio to both the locally hosted 'AdventureWorks2022' SQL Server and the empty Azure SQL Database hosted on the server created in the previous step
 
-###Task 3: Schema Migration 
+### Task 3: Schema Migration 
 - Right click on the source database ('AdventureWorks2022') in Azure Data Studio
 - Select 'Schema Compare' option
 - In the following tab, ensure that the source is 'AdventureWorks2022' and the target is the Azure hosted SQL database made previously
@@ -64,7 +64,7 @@ the VM will act as a repository for the company's database, simulating a secure 
 - Aplly all changes to the target database
 - Wait for success dialogue to confirm completion
 
-###Task 4: Data Migration 
+### Task 4: Data Migration 
 - Select local database in Azure Data Studio
 - Press 'Azure Data Migration' then 'Migrate to Azure SQL Database'
 - Follow steps as laid out in Migration Wizard
@@ -85,15 +85,15 @@ the VM will act as a repository for the company's database, simulating a secure 
   - Press 'Start Migration'
 - Monitor progress through the Azure Database Migration Service in Azure webpage or in migrations panel of Azure SQL Migration extension in Azure Data Studio
 
-###Task 5: Validate 
+### Task 5: Validate 
 - Once migration is successful validate this manually
 - Check that the correct number of tables are present
 - Randomly go through tables, displaying the top 1000 entries and compare to source database for discrepencies
 
 
-##Data Backup and Restore
+## Data Backup and Restore
 
-###Task 1: Backup onpremise database
+### Task 1: Backup onpremise database
 - Find the onpremises database in SSMS
 - Right-click, press 'Tasks' then 'Backup'
 - Follow subsequent instuctions
@@ -101,13 +101,13 @@ the VM will act as a repository for the company's database, simulating a secure 
   - Select desired backup type ('Full' in this instance)
   - Click 'OK' to initiate
 
-###Task 2: Upload backup to Blob storage
+### Task 2: Upload backup to Blob storage
 - Open Azure portal and navigate to Azure storage accounts
 - CLick on 'Upload' then drag and drop the backup file
 - Set the container to which it will be saved
 - Wait until upload is completed
 
-###Task 3: Restore Database in Development Environemnt 
+### Task 3: Restore Database in Development Environemnt 
 - Create a new VM with the same environment as the previously made one (Follow Task 1 of Setting up the Production Environment)
   - The development Environment is a controlled and isolated area where the database and system can be worked upon and stress-tested without altering the production environment
 - Connect to the new Development VM
@@ -118,7 +118,7 @@ the VM will act as a repository for the company's database, simulating a secure 
 - Restore the database
   - Follow steps described in Task 4 of Setting up the Production Environment
  
-###Task 4: Automate Backups 
+### Task 4: Automate Backups 
 - Create Server Credentials
   - In SSMS right click server name, 'New Query'
   - Execute following T-SQL command
@@ -135,9 +135,9 @@ the VM will act as a repository for the company's database, simulating a secure 
   - Select database to be backed-up and select location  
 
 
-##Disaster Recovery Simulation
+## Disaster Recovery Simulation
 
-###Task 1: Mimic Data Loss in Production Environment 
+### Task 1: Mimic Data Loss in Production Environment 
 - Connect to the Production VM
 - Ensure Azure Data Studio is connected to production database
 - Right click production database, click 'New Query'
@@ -148,7 +148,7 @@ the VM will act as a repository for the company's database, simulating a secure 
     - In 'Purchasing.Vendor' change the top 100 results for the 'BusinessEntityID' column to NULL
 - Verify intentional data loss by querying tables in question, which should return 100 fewer results in 'Person.Person' while the top 100 entries in 'BusinessEntityID' for 'Purchasing.Vendor' should be NULL values
 
-###Task 2: Restore Database 
+### Task 2: Restore Database 
 - Find and select the affected database in the Azure SQL Database dashboard through the Azure portal
 - Select the 'Restore' option
 - In the subsequent window:
@@ -159,9 +159,9 @@ the VM will act as a repository for the company's database, simulating a secure 
 - Once restored delete the corrupted database as it is no longer needed
 
 
-##Geo-Replication and Failover
+## Geo-Replication and Failover
 
-###Task 1: Setup Geo-Replication
+### Task 1: Setup Geo-Replication
 - Find and select the target database in the Azure portal
 - In the side menu find the 'Replicas' tab under 'Data management'
 - Click 'create new' at the top of the directory
@@ -170,7 +170,7 @@ the VM will act as a repository for the company's database, simulating a secure 
   - In this case the primary server is in UK South, and the Geo-Replica is in East US
   - Review and Create
  
-###Task 2: Failover and Failback
+### Task 2: Failover and Failback
 - Create Failover group
   - Find SQL Server for primary database
   - Under 'Data management' tab select 'Failover groups' then 'Add group'
@@ -184,16 +184,16 @@ the VM will act as a repository for the company's database, simulating a secure 
 
 
 
-##Microsoft Entra Directory Integration
+## Microsoft Entra Directory Integration
 
-###Task 1: Configure Entra ID 
+### Task 1: Configure Entra ID 
 - Find SQL server that hosts primaru database in Azure portal
 - Find 'security' tab, click 'Microsoft Entra'
 - Click 'Set admin', select 'user', select your user
   - This will grant privilaged permissions to that user within the environment
 - Remember to click 'save' on top menu to save changes
 
-###Task 2: Create DB Reader User
+### Task 2: Create DB Reader User
 - Go to Microsoft Entra ID page via the Azure portal
 - Create new users by going to 'Add' > 'users' > 'create new user'
 - Fill in the details
